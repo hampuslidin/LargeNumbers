@@ -7,9 +7,13 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		1603691E1B1509AF00BC1942 /* lint_functions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1603691D1B1509AF00BC1942 /* lint_functions.swift */; };
+		160369461B1518AB00BC1942 /* lint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1677A2941B13568E00269248 /* lint.swift */; };
+		160369471B1518AB00BC1942 /* lint_functions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1603691D1B1509AF00BC1942 /* lint_functions.swift */; };
 		1677A27B1B13560A00269248 /* LargeNumbers.h in Headers */ = {isa = PBXBuildFile; fileRef = 1677A27A1B13560A00269248 /* LargeNumbers.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		1677A2811B13560B00269248 /* LargeNumbers.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1677A2751B13560A00269248 /* LargeNumbers.framework */; };
 		1677A2881B13560B00269248 /* LargeNumbersTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1677A2871B13560B00269248 /* LargeNumbersTests.swift */; };
+		1677A2951B13568E00269248 /* lint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1677A2941B13568E00269248 /* lint.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -23,12 +27,14 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		1603691D1B1509AF00BC1942 /* lint_functions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = lint_functions.swift; sourceTree = "<group>"; };
 		1677A2751B13560A00269248 /* LargeNumbers.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = LargeNumbers.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		1677A2791B13560A00269248 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		1677A27A1B13560A00269248 /* LargeNumbers.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LargeNumbers.h; sourceTree = "<group>"; };
 		1677A2801B13560B00269248 /* LargeNumbersTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = LargeNumbersTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		1677A2861B13560B00269248 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		1677A2871B13560B00269248 /* LargeNumbersTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LargeNumbersTests.swift; sourceTree = "<group>"; };
+		1677A2941B13568E00269248 /* lint.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = lint.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -50,6 +56,14 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		1603691B1B15084D00BC1942 /* Headers */ = {
+			isa = PBXGroup;
+			children = (
+				1677A27A1B13560A00269248 /* LargeNumbers.h */,
+			);
+			name = Headers;
+			sourceTree = "<group>";
+		};
 		1677A26B1B13560A00269248 = {
 			isa = PBXGroup;
 			children = (
@@ -71,7 +85,8 @@
 		1677A2771B13560A00269248 /* LargeNumbers */ = {
 			isa = PBXGroup;
 			children = (
-				1677A27A1B13560A00269248 /* LargeNumbers.h */,
+				1677A2911B13564600269248 /* LargeInt */,
+				1603691B1B15084D00BC1942 /* Headers */,
 				1677A2781B13560A00269248 /* Supporting Files */,
 			);
 			path = LargeNumbers;
@@ -100,6 +115,15 @@
 				1677A2861B13560B00269248 /* Info.plist */,
 			);
 			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		1677A2911B13564600269248 /* LargeInt */ = {
+			isa = PBXGroup;
+			children = (
+				1677A2941B13568E00269248 /* lint.swift */,
+				1603691D1B1509AF00BC1942 /* lint_functions.swift */,
+			);
+			name = LargeInt;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -209,6 +233,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1603691E1B1509AF00BC1942 /* lint_functions.swift in Sources */,
+				1677A2951B13568E00269248 /* lint.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -216,6 +242,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				160369471B1518AB00BC1942 /* lint_functions.swift in Sources */,
+				160369461B1518AB00BC1942 /* lint.swift in Sources */,
 				1677A2881B13560B00269248 /* LargeNumbersTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -318,6 +346,7 @@
 		1677A28C1B13560B00269248 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
@@ -329,12 +358,14 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
 			name = Debug;
 		};
 		1677A28D1B13560B00269248 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
@@ -400,6 +431,7 @@
 				1677A28D1B13560B00269248 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		1677A28E1B13560B00269248 /* Build configuration list for PBXNativeTarget "LargeNumbersTests" */ = {
 			isa = XCConfigurationList;
@@ -408,6 +440,7 @@
 				1677A2901B13560B00269248 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
