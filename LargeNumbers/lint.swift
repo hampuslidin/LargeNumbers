@@ -1,5 +1,5 @@
 //
-//  lint.swift
+//  LInt.swift
 //  LargeNumbers
 //
 //  Author: Hampus Lidin
@@ -8,21 +8,6 @@
 import Darwin
 import Foundation
 
-/*-------- Protocols and extensions --------*/
-public protocol Number {}
-extension Int:    Number {}
-extension Int8:   Number {}
-extension Int16:  Number {}
-extension Int32:  Number {}
-extension Int64:  Number {}
-extension UInt:   Number {}
-extension UInt8:  Number {}
-extension UInt16: Number {}
-extension UInt32: Number {}
-extension UInt64: Number {}
-extension Float:  Number {}
-extension Double: Number {}
-
 /*-------- Classes --------*/
 
 /**
@@ -30,19 +15,21 @@ extension Double: Number {}
     it dynamically allocates space depending on the size of the number, using
     Swift's native array implementation.
 */
-public struct lint: Comparable, Printable
+public struct LInt: LIntegerType
 {
+  typealias ValueType = [UInt64]
+
   // Properties
   public var description: String
   {
     get { return self.toString() }
   }
-  private(set) var value: [UInt64] = [0]
+  public private(set) var value: [UInt64] = [0]
   
   // Initializers
   public init() {}
   
-  public init(_ value: Number)
+  public init<T: IntegerType>(_ value: T)
   {
     if let cast = value as? Int         { self.value[0] = UInt64(cast) }
     else if let cast = value as? Int8   { self.value[0] = UInt64(cast) }
@@ -58,11 +45,31 @@ public struct lint: Comparable, Printable
     else if let cast = value as? Double { self.value[0] = UInt64(cast) }
   }
   
+  public init<T: FloatingPointType>(_ value: T)
+  {
+    if let cast = value as? Float       { self.value[0] = UInt64(cast) }
+    else if let cast = value as? Double { self.value[0] = UInt64(cast) }
+  }
+  
+  // Comparison functions
+  public func equals(obj: LInt) -> Bool {
+    return (value.count == obj.value.count) && (value.last! == obj.value.last!)
+  }
+  
+  public func gt(obj: LInt) -> Bool {
+    return (value.count > obj.value.count) ||
+      ((value.count == obj.value.count) && value.last! > obj.value.last!)
+  }
+  
+  public func lt(obj: LInt) -> Bool {
+    return !(self >= obj)
+  }
+  
   // Functions
   public func toString() -> String
   {
     if self == 0 { return "0" } 
-    var n = self, rem = lint(), str = ""
+    var n = self, rem = LInt(), str = ""
     while n != 0
     {
       rem = n % 10
@@ -73,7 +80,7 @@ public struct lint: Comparable, Printable
   }
   
   // Static functions
-  static func add(lhs: lint, rhs: lint) -> lint
+  public static func add(lhs: LInt, _ rhs: LInt) -> LInt
   {
     let largest = lhs > rhs ? lhs : rhs
     let smallest = lhs < rhs ? lhs : rhs
@@ -92,7 +99,7 @@ public struct lint: Comparable, Printable
     return res
   }
   
-  static func subtract(lhs: lint, rhs: lint) -> lint
+  public static func subtract(lhs: LInt, _ rhs: LInt) -> LInt
   {
     assert(lhs >= rhs, "Overflow")
     var res = lhs
@@ -114,7 +121,7 @@ public struct lint: Comparable, Printable
     return res
   }
   
-  static func multiply(lhs: lint, rhs: lint) -> lint
+  public static func multiply(lhs: LInt, _ rhs: LInt) -> LInt
   {
     func long_multiply_uint64(lhs: UInt64, rhs: UInt64) -> (UInt64, UInt64)
     {
@@ -132,14 +139,14 @@ public struct lint: Comparable, Printable
       return ((res_high << 32) | res_low, x)
     }
     
-    var res = lint()
+    var res = LInt()
     for i in 0 ..< lhs.value.count
     {
       for j in 0 ..< rhs.value.count
       {
         let (part_res, carry) = long_multiply_uint64(lhs.value[i], rhs.value[j])
-        var r = lint()
-        var c = lint()
+        var r = LInt()
+        var c = LInt()
         if carry != 0 { c.value.append(0) }
         for _ in 0 ..< i+j
         {
@@ -155,13 +162,13 @@ public struct lint: Comparable, Printable
     return res
   }
   
-  static func divide(lhs: lint, rhs: lint) -> lint
+  public static func divide(lhs: LInt, _ rhs: LInt) -> LInt
   {
     assert(rhs != 0, "Division by 0")
-    if lhs < rhs { return lint(0) }
-    if lhs == rhs { return lint(1) }
-    var q = lint()
-    var rem = lint()
+    if lhs < rhs { return LInt(0) }
+    if lhs == rhs { return LInt(1) }
+    var q = LInt()
+    var rem = LInt()
     for var offs = lhs.value.count-1; offs >= 0; offs--
     {
       var bits = 64
@@ -175,7 +182,7 @@ public struct lint: Comparable, Printable
           bits++
         }
       }
-      var pow_i = UInt64(pow(2, Double(bits-1)))
+      var pow_i = UInt64(Darwin.pow(2.0, Double(bits-1)))
       for var i = bits-1; i >= 0; i--
       {
         rem <<= 1
@@ -193,10 +200,10 @@ public struct lint: Comparable, Printable
     return q
   }
   
-  static func lls(lhs: lint, rhs: lint) -> lint
+  public static func lls(lhs: LInt, _ rhs: LInt) -> LInt
   {
     if rhs == 0 { return lhs }
-    var res = lint()
+    var res = LInt()
     if rhs >= 64
     {
       res = lhs
@@ -212,7 +219,7 @@ public struct lint: Comparable, Printable
         }
         res.value[index++] = 0
       }
-      return lls(res, rhs: shift_mod)
+      return lls(res, shift_mod)
     } else
     {
       let mask = 0xFFFFFFFFFFFFFFFF << (64 - rhs.value[0])
@@ -231,11 +238,11 @@ public struct lint: Comparable, Printable
     return res
   }
   
-  static func lrs(lhs: lint, rhs: lint) -> lint
+  public static func lrs(lhs: LInt, _ rhs: LInt) -> LInt
   {
-    if rhs > lhs.value.count*64 { return lint() }
+    if rhs > lhs.value.count*64 { return LInt() }
     if rhs == 0 { return lhs }
-    var res = lint()
+    var res = LInt()
     if rhs >= 64
     {
       res = lhs
@@ -249,7 +256,7 @@ public struct lint: Comparable, Printable
         }
         res.value.removeLast()
       }
-      return lrs(res, rhs: shift_mod)
+      return lrs(res, shift_mod)
     } else
     {
       let mask = 0xFFFFFFFFFFFFFFFF >> (64 - rhs.value[0])
@@ -265,8 +272,20 @@ public struct lint: Comparable, Printable
     return res
   }
   
-  public static func bitop(lhs: lint, rhs: lint, op: (UInt64, UInt64) -> UInt64,
-      default_value: UInt64) -> lint
+  public static func mod(lhs: LInt, _ rhs: LInt) -> LInt {
+    return lhs-(lhs/rhs*rhs)
+  }
+  
+  public static func and(lhs: LInt, _ rhs: LInt) -> LInt {
+    return bitop(lhs, rhs: rhs, op: &, default_value: 0)
+  }
+  
+  public static func or(lhs: LInt, _ rhs: LInt) -> LInt {
+    return bitop(lhs, rhs: rhs, op: |, default_value: UInt64.max)
+  }
+  
+  private static func bitop(lhs: LInt, rhs: LInt, op: (UInt64, UInt64) -> UInt64,
+      default_value: UInt64) -> LInt
   {
     let largest = lhs > rhs ? lhs : rhs
     let smallest = lhs < rhs ? lhs : rhs
@@ -284,14 +303,45 @@ public struct lint: Comparable, Printable
     return res
   }
   
+  public static func sqrt(n: LInt) -> LInt {
+    var num = n
+    var res = LInt(0)
+    var bit = LInt(1) << (62 + 64*(n.value.count-1))
+    while bit > n { bit >>= 2 }
+    while bit != 0
+    {
+      if num >= res + bit
+      {
+        num -= res + bit
+        res = (res >> 1) + bit
+      } else
+      {
+        res >>= 1
+      }
+      bit >>= 2
+    }
+    return res
+  }
+  
+  public static func pow(n: LInt, p: Double) -> LInt {
+    if p == 0 { return LInt(1) }
+    if n == 0 { return LInt() }
+    var res = n
+    let op: (LInt, LInt) -> LInt = p >= 0 ? multiply : divide
+    for _ in 0 ..< Int(abs(p)) {
+      res = op(res, n)
+    }
+    return res
+  }
+  
   /*-------- Tests --------*/
-  static func checkValidity(# rounds: Int)
+  internal static func checkValidity(# rounds: Int)
   {
     for i in 1 ... rounds
     {
-      var a = lint(UInt64(rand())*UInt64(rand()))
-      var b = lint(UInt64(rand())*UInt64(rand()))
-      var c = lint(UInt64(rand())*UInt64(rand()))
+      var a = LInt(UInt64(rand())*UInt64(rand()))
+      var b = LInt(UInt64(rand())*UInt64(rand()))
+      var c = LInt(UInt64(rand())*UInt64(rand()))
       
       var limit = rand()%3
       for j in 0 ..< limit { a.value.append(UInt64(rand())*UInt64(rand())) }
@@ -302,29 +352,7 @@ public struct lint: Comparable, Printable
       limit = rand()%3
       for j in 0 ..< limit { c.value.append(UInt64(rand())*UInt64(rand())) }
       
-      let x = lint(1) << 64 + UInt64.max
-      let y = x + x
-      assert(a+b == b+a,
-        "Assertion failure: additive commutativity, a+b != b+a." +
-        "\(a)+\(b) = \(a+b)\n" +
-        "\(b)+\(a) = \(b+a)\n" )
-      assert(a*b == b*a,
-        "Assertion failure: multiplicative commutativity, a*b != b*a." +
-        "\(a)*\(b) = \(a*b)\n" +
-        "\(b)*\(a) = \(b*a)\n" )
-      assert((a+b)+c == a+(b+c),
-        "Assertion failure: additive associativity, (a+b)+c != a+(b+c)." +
-        "(\(a)+\(b))+\(c) = \((a+b)+c)\n" +
-        "\(a)+(\(b)+\(c)) = \(a+(b+c))\n" )
-      assert((a*b)*c == a*(b*c),
-        "Assertion failure: additive associativity, (a*b)*c != a*(b*c)." +
-        "(\(a)*\(b))*\(c) = \((a*b)*c)\n" +
-        "\(a)*(\(b)*\(c)) = \(a*(b*c))\n" )
-      assert(a*(b+c) == a*b+a*c,
-        "Assertion failure: distibrution, a*(b+c) != a*b+a*c.\n" +
-        "\(a)*(\(b)+\(c)) = \(a*(b+c))\n" +
-        "\(a)*\(b)+\(a)*\(c) = \(a*b+a*c)\n" )
-      assert(a-b+b == a)
+      /* Insert tests here */
       
       if i%100 == 0 { println("\(i) tests completed.") }
     }
