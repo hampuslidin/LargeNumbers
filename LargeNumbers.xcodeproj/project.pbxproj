@@ -18,6 +18,20 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		161C63681B1857E500F33B1A /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 161C63631B1857E500F33B1A /* Sequences.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 164749A91B15937600B01DAD;
+			remoteInfo = Sequences;
+		};
+		161C636A1B1857E500F33B1A /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 161C63631B1857E500F33B1A /* Sequences.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 164749B81B15937600B01DAD;
+			remoteInfo = SequencesTests;
+		};
 		1677A2821B13560B00269248 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 1677A26C1B13560A00269248 /* Project object */;
@@ -28,6 +42,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		161C63631B1857E500F33B1A /* Sequences.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = Sequences.xcodeproj; path = ../Sequences/Sequences.xcodeproj; sourceTree = "<group>"; };
 		1634EDDD1B161D0F001F7456 /* Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Extensions.swift; path = Common/Extensions.swift; sourceTree = "<group>"; };
 		164749CA1B15986D00B01DAD /* URat.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = URat.swift; path = RationalNumbers/URat.swift; sourceTree = "<group>"; };
 		164749CD1B15993C00B01DAD /* Protocols.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Protocols.swift; path = Common/Protocols.swift; sourceTree = "<group>"; };
@@ -68,6 +83,15 @@
 			name = Headers;
 			sourceTree = "<group>";
 		};
+		161C63641B1857E500F33B1A /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				161C63691B1857E500F33B1A /* Sequences.app */,
+				161C636B1B1857E500F33B1A /* SequencesTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 		164749CC1B1598FE00B01DAD /* Common */ = {
 			isa = PBXGroup;
 			children = (
@@ -81,6 +105,7 @@
 		1677A26B1B13560A00269248 = {
 			isa = PBXGroup;
 			children = (
+				161C63631B1857E500F33B1A /* Sequences.xcodeproj */,
 				1677A2941B13568E00269248 /* LInt.swift */,
 				164749CA1B15986D00B01DAD /* URat.swift */,
 				164749CC1B1598FE00B01DAD /* Common */,
@@ -204,6 +229,12 @@
 			mainGroup = 1677A26B1B13560A00269248;
 			productRefGroup = 1677A2761B13560A00269248 /* Products */;
 			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = 161C63641B1857E500F33B1A /* Products */;
+					ProjectRef = 161C63631B1857E500F33B1A /* Sequences.xcodeproj */;
+				},
+			);
 			projectRoot = "";
 			targets = (
 				1677A2741B13560A00269248 /* LargeNumbers */,
@@ -211,6 +242,23 @@
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXReferenceProxy section */
+		161C63691B1857E500F33B1A /* Sequences.app */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.application;
+			path = Sequences.app;
+			remoteRef = 161C63681B1857E500F33B1A /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		161C636B1B1857E500F33B1A /* SequencesTests.xctest */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.cfbundle;
+			path = SequencesTests.xctest;
+			remoteRef = 161C636A1B1857E500F33B1A /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+/* End PBXReferenceProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
 		1677A2731B13560A00269248 /* Resources */ = {
