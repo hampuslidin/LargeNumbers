@@ -7,13 +7,14 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		1603691E1B1509AF00BC1942 /* lint_functions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1603691D1B1509AF00BC1942 /* lint_functions.swift */; };
-		160369461B1518AB00BC1942 /* lint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1677A2941B13568E00269248 /* lint.swift */; };
-		160369471B1518AB00BC1942 /* lint_functions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1603691D1B1509AF00BC1942 /* lint_functions.swift */; };
+		1634EDDE1B161D0F001F7456 /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1634EDDD1B161D0F001F7456 /* Extensions.swift */; };
+		164749CB1B15986D00B01DAD /* URat.swift in Sources */ = {isa = PBXBuildFile; fileRef = 164749CA1B15986D00B01DAD /* URat.swift */; };
+		164749CE1B15993C00B01DAD /* Protocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = 164749CD1B15993C00B01DAD /* Protocols.swift */; };
+		164749D31B15CB4300B01DAD /* Operators.swift in Sources */ = {isa = PBXBuildFile; fileRef = 164749D21B15CB4300B01DAD /* Operators.swift */; };
 		1677A27B1B13560A00269248 /* LargeNumbers.h in Headers */ = {isa = PBXBuildFile; fileRef = 1677A27A1B13560A00269248 /* LargeNumbers.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		1677A2811B13560B00269248 /* LargeNumbers.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1677A2751B13560A00269248 /* LargeNumbers.framework */; };
 		1677A2881B13560B00269248 /* LargeNumbersTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1677A2871B13560B00269248 /* LargeNumbersTests.swift */; };
-		1677A2951B13568E00269248 /* lint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1677A2941B13568E00269248 /* lint.swift */; };
+		1677A2951B13568E00269248 /* LInt.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1677A2941B13568E00269248 /* LInt.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -27,14 +28,17 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		1603691D1B1509AF00BC1942 /* lint_functions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = lint_functions.swift; sourceTree = "<group>"; };
+		1634EDDD1B161D0F001F7456 /* Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Extensions.swift; path = Common/Extensions.swift; sourceTree = "<group>"; };
+		164749CA1B15986D00B01DAD /* URat.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = URat.swift; path = RationalNumbers/URat.swift; sourceTree = "<group>"; };
+		164749CD1B15993C00B01DAD /* Protocols.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Protocols.swift; path = Common/Protocols.swift; sourceTree = "<group>"; };
+		164749D21B15CB4300B01DAD /* Operators.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Operators.swift; path = Common/Operators.swift; sourceTree = "<group>"; };
 		1677A2751B13560A00269248 /* LargeNumbers.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = LargeNumbers.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		1677A2791B13560A00269248 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		1677A27A1B13560A00269248 /* LargeNumbers.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LargeNumbers.h; sourceTree = "<group>"; };
 		1677A2801B13560B00269248 /* LargeNumbersTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = LargeNumbersTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		1677A2861B13560B00269248 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		1677A2871B13560B00269248 /* LargeNumbersTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LargeNumbersTests.swift; sourceTree = "<group>"; };
-		1677A2941B13568E00269248 /* lint.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = lint.swift; sourceTree = "<group>"; };
+		1677A2941B13568E00269248 /* LInt.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = LInt.swift; path = LargeNumbers/LInt.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -64,11 +68,24 @@
 			name = Headers;
 			sourceTree = "<group>";
 		};
+		164749CC1B1598FE00B01DAD /* Common */ = {
+			isa = PBXGroup;
+			children = (
+				164749CD1B15993C00B01DAD /* Protocols.swift */,
+				1634EDDD1B161D0F001F7456 /* Extensions.swift */,
+				164749D21B15CB4300B01DAD /* Operators.swift */,
+			);
+			name = Common;
+			sourceTree = "<group>";
+		};
 		1677A26B1B13560A00269248 = {
 			isa = PBXGroup;
 			children = (
-				1677A2771B13560A00269248 /* LargeNumbers */,
-				1677A2841B13560B00269248 /* LargeNumbersTests */,
+				1677A2941B13568E00269248 /* LInt.swift */,
+				164749CA1B15986D00B01DAD /* URat.swift */,
+				164749CC1B1598FE00B01DAD /* Common */,
+				1677A2781B13560A00269248 /* Supporting Files */,
+				1677A2841B13560B00269248 /* Tests */,
 				1677A2761B13560A00269248 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -82,30 +99,23 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		1677A2771B13560A00269248 /* LargeNumbers */ = {
-			isa = PBXGroup;
-			children = (
-				1677A2911B13564600269248 /* LargeInt */,
-				1603691B1B15084D00BC1942 /* Headers */,
-				1677A2781B13560A00269248 /* Supporting Files */,
-			);
-			path = LargeNumbers;
-			sourceTree = "<group>";
-		};
 		1677A2781B13560A00269248 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				1603691B1B15084D00BC1942 /* Headers */,
 				1677A2791B13560A00269248 /* Info.plist */,
 			);
 			name = "Supporting Files";
+			path = LargeNumbers;
 			sourceTree = "<group>";
 		};
-		1677A2841B13560B00269248 /* LargeNumbersTests */ = {
+		1677A2841B13560B00269248 /* Tests */ = {
 			isa = PBXGroup;
 			children = (
 				1677A2871B13560B00269248 /* LargeNumbersTests.swift */,
 				1677A2851B13560B00269248 /* Supporting Files */,
 			);
+			name = Tests;
 			path = LargeNumbersTests;
 			sourceTree = "<group>";
 		};
@@ -115,15 +125,6 @@
 				1677A2861B13560B00269248 /* Info.plist */,
 			);
 			name = "Supporting Files";
-			sourceTree = "<group>";
-		};
-		1677A2911B13564600269248 /* LargeInt */ = {
-			isa = PBXGroup;
-			children = (
-				1677A2941B13568E00269248 /* lint.swift */,
-				1603691D1B1509AF00BC1942 /* lint_functions.swift */,
-			);
-			name = LargeInt;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -233,8 +234,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				1603691E1B1509AF00BC1942 /* lint_functions.swift in Sources */,
-				1677A2951B13568E00269248 /* lint.swift in Sources */,
+				1634EDDE1B161D0F001F7456 /* Extensions.swift in Sources */,
+				164749CB1B15986D00B01DAD /* URat.swift in Sources */,
+				1677A2951B13568E00269248 /* LInt.swift in Sources */,
+				164749CE1B15993C00B01DAD /* Protocols.swift in Sources */,
+				164749D31B15CB4300B01DAD /* Operators.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -242,8 +246,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				160369471B1518AB00BC1942 /* lint_functions.swift in Sources */,
-				160369461B1518AB00BC1942 /* lint.swift in Sources */,
 				1677A2881B13560B00269248 /* LargeNumbersTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
