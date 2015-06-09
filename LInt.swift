@@ -16,11 +16,12 @@ import Foundation
     Swift's native array implementation.
 */
 public struct LInt: LNumberType, SignedIntegerType {
-  // Initializers
+  // MARK: - Initializers
   public init<T: FloatingPointType>(_ value: T) {
-    negative = value < (0 as! T)
-    if let cast = value as? Float       { self.value[0] = UInt(negative ? -cast : cast) }
-    else if let cast = value as? Double { self.value[0] = UInt(negative ? -cast : cast) }
+    negative = value.isSignMinus
+    if let cast = value as? Float        { self.value[0] = UInt(negative ? -cast : cast) }
+    else if let cast = value as? Double  { self.value[0] = UInt(negative ? -cast : cast) }
+    else if let cast = value as? CGFloat { self.value[0] = UInt(negative ? -cast : cast) }
   }
   
   public init<T: IntegerType>(_ value: T) {
@@ -36,9 +37,10 @@ public struct LInt: LNumberType, SignedIntegerType {
     else if let cast = x as? UInt16 { self.value[0] = UInt(cast) }
     else if let cast = x as? UInt32 { self.value[0] = UInt(cast) }
     else if let cast = x as? UInt64 { self.value[0] = UInt(cast) }
+    else if let cast = x as? LInt   { self.value    = cast.value }
   }
   
-  // Class functions
+  // MARK: - Class methods
   public static func multiply(lhs: LInt, _ rhs: LInt) -> LInt
   {
     func long_multiply_uint(lhs: UInt, rhs: UInt) -> (UInt, UInt)
@@ -72,7 +74,10 @@ public struct LInt: LNumberType, SignedIntegerType {
           if carry != 0 { c.value.append(0) }
         }
         r.value[i+j] = part_res
-        if carry != 0 { c.value[i+j+1] = carry }
+        if carry != 0 {
+          if (i+j+1) >= c.value.count { c.value.append(carry) }
+          else { c.value[i+j+1] = carry }
+        }
         res += r
         res += c
       }
@@ -85,8 +90,18 @@ public struct LInt: LNumberType, SignedIntegerType {
   
   public static func divide(lhs: LInt, _ rhs: LInt) -> LInt {
     assert(rhs != LInt(0), "Division by 0")
-    if lhs < rhs { return LInt(0) }
-    if lhs == rhs { return LInt(1) }
+    let oneNegative = (lhs.negative || rhs.negative) && !(lhs.negative && rhs.negative)
+    if lhs.value == rhs.value { return oneNegative ? LInt(-1) : LInt(1) }
+    if lhs.value.count < rhs.value.count  { return LInt(0) }
+    if lhs.value.count == rhs.value.count {
+      for i in 0 ..< lhs.value.count {
+        if lhs.value[lhs.value.count-1-i] < rhs.value[lhs.value.count-1-i] {
+          return LInt(0)
+        }
+        if lhs.value[lhs.value.count-1-i] > rhs.value[lhs.value.count-1-i] { break }
+      }
+    }
+    
     var q: LInt = LInt(0)
     var rem: LInt = LInt(0)
     for var offs = lhs.value.count-1; offs >= 0; offs--
@@ -206,11 +221,11 @@ public struct LInt: LNumberType, SignedIntegerType {
   }
   
   public static func and(lhs: LInt, _ rhs: LInt) -> LInt {
-    return bitop(lhs, rhs: rhs, op: &, default_value: 0)
+    return bitop(lhs, rhs: rhs, op: &, default_value: UInt.max)
   }
   
   public static func or(lhs: LInt, _ rhs: LInt) -> LInt {
-    return bitop(lhs, rhs: rhs, op: |, default_value: UInt.max)
+    return bitop(lhs, rhs: rhs, op: |, default_value: 0)
   }
   
   public static func xor(lhs: LInt, _ rhs: LInt) -> LInt {
@@ -244,7 +259,7 @@ public struct LInt: LNumberType, SignedIntegerType {
     return res
   }
   
-  // Methods
+  // MARK: - Instance methods
   public func toString() -> String
   {
     if self == 0 { return "0" }
@@ -262,7 +277,13 @@ public struct LInt: LNumberType, SignedIntegerType {
   typealias ValueType = [UInt]
   
   private var negative: Bool = false
-  public private(set) var value: [UInt] = [0]
+  public private(set) var value: [UInt] = [0] {
+    didSet {
+      while self.value.count > 1 && self.value.last! == 0 {
+        self.value.removeLast()
+      }
+    }
+  }
   
   public init() {}
   
@@ -275,11 +296,16 @@ public struct LInt: LNumberType, SignedIntegerType {
   
   public func lt(obj: LInt) -> Bool {
     if !negative && obj.negative { return false }
-    if negative && !obj.negative { return true }
-    return !negative && (value.count < obj.value.count ||
-      ((value.count == obj.value.count) && value.last! < obj.value.last!)) ||
-      negative && (obj.value.count < value.count ||
-      ((value.count == obj.value.count) && obj.value.last! < value.last!))
+    if negative && !obj.negative { return true  }
+    
+    if value.count < obj.value.count { return !negative }
+    if value.count > obj.value.count { return negative  }
+    for i in 0 ..< value.count {
+      if value[value.count-1-i] < obj.value[value.count-1-i] { return !negative }
+      if value[value.count-1-i] > obj.value[value.count-1-i] { return negative }
+    }
+    
+    return false
   }
   
   public static func add(lhs: LInt, _ rhs: LInt) -> LInt {
@@ -453,29 +479,5 @@ public struct LInt: LNumberType, SignedIntegerType {
   
   public func advancedBy(other: Int) -> LInt {
     return self+LInt(other)
-  }
-  
-  /*-------- Tests --------*/
-  static func checkValidity(# rounds: Int) {
-    for i in 1 ... rounds
-    {
-      var a = LInt(UInt64(rand())*UInt64(rand()))
-      var b = LInt(UInt64(rand())*UInt64(rand()))
-      var c = LInt(UInt64(rand())*UInt64(rand()))
-      
-      var limit = rand()%3
-      for j in 0 ..< limit { a.value.append(UInt(rand())*UInt(rand())) }
-      
-      limit = rand()%3
-      for j in 0 ..< limit { b.value.append(UInt(rand())*UInt(rand())) }
-      
-      limit = rand()%3
-      for j in 0 ..< limit { c.value.append(UInt(rand())*UInt(rand())) }
-      
-      /* Insert tests here */
-      
-      if i%100 == 0 { println("\(i) tests completed.") }
-    }
-    println("\nCompleted all tests successfully.")
   }
 }
