@@ -56,9 +56,9 @@ public func >>   (lhs: LInt, rhs: LInt) -> LInt {
 }
 
 // MARK: Shift by
-public func <<=  (inout lhs: LInt, rhs: LInt)                     { lhs = lhs << rhs }
+public func <<=  (lhs: inout LInt, rhs: LInt)                     { lhs = lhs << rhs }
 
-public func >>=  (inout lhs: LInt, rhs: LInt)                     { lhs = lhs >> rhs }
+public func >>=  (lhs: inout LInt, rhs: LInt)                     { lhs = lhs >> rhs }
 
 // MARK: Square root
-public func sqrt (n: LInt) -> LInt { return LInt.sqrt(n) }
+public func sqrt (_ n: LInt) -> LInt { return LInt.sqrt(n) }

@@ -15,18 +15,18 @@ import Foundation
     it dynamically allocates space depending on the size of the number, using
     Swift's native array implementation.
 */
-public struct LInt: LNumberType, SignedIntegerType {
+public struct LInt: LNumberType, SignedInteger {
   // MARK: - Initializers
-  public init<T: FloatingPointType>(_ value: T) {
-    negative = value.isSignMinus
+  public init<T: FloatingPoint>(_ value: T) {
+    negative = value.sign == .minus
     if let cast = value as? Float        { self.value[0] = UInt(negative ? -cast : cast) }
     else if let cast = value as? Double  { self.value[0] = UInt(negative ? -cast : cast) }
     else if let cast = value as? CGFloat { self.value[0] = UInt(negative ? -cast : cast) }
   }
   
-  public init<T: IntegerType>(_ value: T) {
+  public init<T: Integer>(_ value: T) {
     negative = value < 0
-    var x = negative ? 0-value : value
+    let x = negative ? 0-value : value
     if let cast = x as? Int         { self.value[0] = UInt(cast) }
     else if let cast = x as? Int8   { self.value[0] = UInt(cast) }
     else if let cast = x as? Int16  { self.value[0] = UInt(cast) }
@@ -41,18 +41,18 @@ public struct LInt: LNumberType, SignedIntegerType {
   }
   
   // MARK: - Class methods
-  public static func multiply(lhs: LInt, _ rhs: LInt) -> LInt
+  public static func multiply(_ lhs: LInt, _ rhs: LInt) -> LInt
   {
-    func long_multiply_uint(lhs: UInt, rhs: UInt) -> (UInt, UInt)
+    func long_multiply_uint(_ lhs: UInt, rhs: UInt) -> (UInt, UInt)
     {
-      func low(n: UInt) -> UInt { return 0xFFFFFFFF & n }
-      func high(n: UInt) -> UInt { return n >> 32 }
+      func low(_ n: UInt) -> UInt { return 0xFFFFFFFF & n }
+      func high(_ n: UInt) -> UInt { return n >> 32 }
       
       var x = low(lhs)*low(rhs)
       let res_low = low(x)
       x = high(lhs)*low(rhs) + high(x)
       var res_high = low(x)
-      var carry_low = high(x)
+      let carry_low = high(x)
       x = res_high + low(lhs)*high(rhs)
       res_high = low(x)
       x = carry_low + high(lhs)*high(rhs) + high(x)
@@ -64,7 +64,7 @@ public struct LInt: LNumberType, SignedIntegerType {
     {
       for j in 0 ..< rhs.value.count
       {
-        let (part_res, carry) = long_multiply_uint(lhs.value[i], rhs.value[j])
+        let (part_res, carry) = long_multiply_uint(lhs.value[i], rhs: rhs.value[j])
         var r = LInt()
         var c = LInt()
         if carry != 0 { c.value.append(0) }
@@ -75,8 +75,7 @@ public struct LInt: LNumberType, SignedIntegerType {
         }
         r.value[i+j] = part_res
         if carry != 0 {
-          if (i+j+1) >= c.value.count { c.value.append(carry) }
-          else { c.value[i+j+1] = carry }
+          c.value[i+j+1] = carry
         }
         res += r
         res += c
@@ -85,10 +84,11 @@ public struct LInt: LNumberType, SignedIntegerType {
     if lhs.negative && !rhs.negative || !lhs.negative && rhs.negative {
       res.negative = true
     }
+    while res.value.count > 1 && res.value.last! == 0 { res.value.removeLast() }
     return res
   }
   
-  public static func divide(lhs: LInt, _ rhs: LInt) -> LInt {
+  public static func divide(_ lhs: LInt, _ rhs: LInt) -> LInt {
     assert(rhs != LInt(0), "Division by 0")
     let oneNegative = (lhs.negative || rhs.negative) && !(lhs.negative && rhs.negative)
     if lhs.value == rhs.value { return oneNegative ? LInt(-1) : LInt(1) }
@@ -104,7 +104,7 @@ public struct LInt: LNumberType, SignedIntegerType {
     
     var q: LInt = LInt(0)
     var rem: LInt = LInt(0)
-    for var offs = lhs.value.count-1; offs >= 0; offs--
+    for offs in (0 ..< lhs.value.count).reversed()
     {
       var bits = 64
       if offs == lhs.value.count-1
@@ -114,19 +114,21 @@ public struct LInt: LNumberType, SignedIntegerType {
         while n != 0
         {
           n >>= 1
-          bits++
+          bits += 1
         }
       }
       var pow_i = UInt(Darwin.pow(2.0, Double(bits-1)))
-      for var i = bits-1; i >= 0; i--
+      for _ in 0 ..< bits
       {
         rem = rem << 1
-        let bit_set = (lhs.value[offs] & pow_i) != 0
-        rem += bit_set ? 1 : 0
+        if ((lhs.value[offs] & pow_i) != 0)
+        {
+          rem = rem + 1
+        }
         if rem >= rhs
         {
           rem -= rhs
-          while q.value.count < offs + 1 { q.value.append(0)}
+          while q.value.count < offs + 1 { q.value.append(0) }
           q.value[offs] += pow_i
         }
         pow_i >>= 1
@@ -138,7 +140,7 @@ public struct LInt: LNumberType, SignedIntegerType {
     return q
   }
   
-  public static func lls(lhs: LInt, _ rhs: LInt) -> LInt
+  public static func lls(_ lhs: LInt, _ rhs: LInt) -> LInt
   {
     if rhs == 0 { return lhs }
     if rhs < 0 {
@@ -157,7 +159,8 @@ public struct LInt: LNumberType, SignedIntegerType {
         for i in index ..< res.value.count-2 {
           res.value[i+1] = res.value[i]
         }
-        res.value[index++] = 0
+        res.value[index] = 0
+        index += 1
       }
       return lls(res, shift_mod)
     } else {
@@ -176,7 +179,7 @@ public struct LInt: LNumberType, SignedIntegerType {
     return res
   }
   
-  public static func lrs(lhs: LInt, _ rhs: LInt) -> LInt
+  public static func lrs(_ lhs: LInt, _ rhs: LInt) -> LInt
   {
     if rhs > LInt(lhs.value.count*64) { return LInt() }
     if rhs == 0 { return lhs }
@@ -215,32 +218,32 @@ public struct LInt: LNumberType, SignedIntegerType {
     return res
   }
   
-  public static func mod(lhs: LInt, _ rhs: LInt) -> LInt {
+  public static func mod(_ lhs: LInt, _ rhs: LInt) -> LInt {
     if rhs < 0 { return LInt(0) }
     return lhs-(lhs/rhs*rhs)
   }
   
-  public static func and(lhs: LInt, _ rhs: LInt) -> LInt {
+  public static func and(_ lhs: LInt, _ rhs: LInt) -> LInt {
     return bitop(lhs, rhs: rhs, op: &, default_value: UInt.max)
   }
   
-  public static func or(lhs: LInt, _ rhs: LInt) -> LInt {
+  public static func or(_ lhs: LInt, _ rhs: LInt) -> LInt {
     return bitop(lhs, rhs: rhs, op: |, default_value: 0)
   }
   
-  public static func xor(lhs: LInt, _ rhs: LInt) -> LInt {
+  public static func xor(_ lhs: LInt, _ rhs: LInt) -> LInt {
     return bitop(lhs, rhs: rhs, op: ^, default_value: 0)
   }
   
-  public static func not(obj: LInt) -> LInt {
+  public static func not(_ obj: LInt) -> LInt {
     var res = obj
-    for var i = 0; i < res.value.count; i++ {
+    for i in 0 ..< res.value.count {
       res.value[i] = ~res.value[i]
     }
     return res
   }
   
-  private static func bitop(lhs: LInt, rhs: LInt, op: (UInt, UInt) -> UInt,
+  fileprivate static func bitop(_ lhs: LInt, rhs: LInt, op: (UInt, UInt) -> UInt,
       default_value: UInt) -> LInt
   {
     let largest = lhs > rhs ? lhs : rhs
@@ -274,27 +277,21 @@ public struct LInt: LNumberType, SignedIntegerType {
   }
   
   // MARK: LNumberType
-  typealias ValueType = [UInt]
+  public typealias ValueType = [UInt]
   
-  private var negative: Bool = false
-  public private(set) var value: [UInt] = [0] {
-    didSet {
-      while self.value.count > 1 && self.value.last! == 0 {
-        self.value.removeLast()
-      }
-    }
-  }
+  fileprivate var negative: Bool = false
+  public fileprivate(set) var value: [UInt] = [0]
   
   public init() {}
   
   public init(_ n: LInt) { self.value = n.value }
   
-  public func equals(obj: LInt) -> Bool {
+  public func equals(_ obj: LInt) -> Bool {
     return negative == obj.negative && (value.count == obj.value.count) &&
       (value.last! == obj.value.last!)
   }
   
-  public func lt(obj: LInt) -> Bool {
+  public func lt(_ obj: LInt) -> Bool {
     if !negative && obj.negative { return false }
     if negative && !obj.negative { return true  }
     
@@ -308,7 +305,7 @@ public struct LInt: LNumberType, SignedIntegerType {
     return false
   }
   
-  public static func add(lhs: LInt, _ rhs: LInt) -> LInt {
+  public static func add(_ lhs: LInt, _ rhs: LInt) -> LInt {
     if lhs.negative && !rhs.negative {
       var l = lhs
       l.negative = false
@@ -336,7 +333,7 @@ public struct LInt: LNumberType, SignedIntegerType {
     return res
   }
   
-  public static func subtract(lhs: LInt, _ rhs: LInt) -> LInt {
+  public static func subtract(_ lhs: LInt, _ rhs: LInt) -> LInt {
     if rhs > lhs {
       var res = subtract(rhs, lhs)
       res.negative = true
@@ -365,18 +362,22 @@ public struct LInt: LNumberType, SignedIntegerType {
         var k = i+1
         while k < lhs.value.count-1 && res.value[k] == 0
         {
-          res.value[k++] = UInt.max
+          res.value[k] = UInt.max
+          k += 1
         }
         if res.value[k] != 0 { res.value[k] -= 1 }
       }
     }
     var m = res.value.count-1
-    while m > 0 && res.value[m--] == 0 { res.value.removeLast() }
+    while m > 0 && res.value[m] == 0 {
+      res.value.removeLast()
+      m -= 1
+    }
     
     return res
   }
   
-  public static func sqrt(n: LInt) -> LInt {
+  public static func sqrt(_ n: LInt) -> LInt {
     var num = n
     var res: LInt = LInt(0)
     var bit: LInt = 1 << LInt(62 + 64*(n.value.count-1))
@@ -396,7 +397,7 @@ public struct LInt: LNumberType, SignedIntegerType {
     return res
   }
   
-  public static func pow(n: LInt, p: Double) -> LInt {
+  public static func pow(_ n: LInt, p: Double) -> LInt {
     if p == 0 { return LInt(1) }
     if n == 0 { return LInt() }
     var res = n
@@ -409,7 +410,7 @@ public struct LInt: LNumberType, SignedIntegerType {
   
   // MARK: SignedIntegerType
   typealias Distance = Int
-  typealias Stride = Int
+  public typealias Stride = Int
   
   public var description: String { get { return self.toString() } }
   public var hashValue: Int {
@@ -431,37 +432,37 @@ public struct LInt: LNumberType, SignedIntegerType {
     self.init(value)
   }
   
-  public static func addWithOverflow(lhs: LInt, _ rhs: LInt)
+  public static func addWithOverflow(_ lhs: LInt, _ rhs: LInt)
       -> (LInt, overflow: Bool) {
     return (add(lhs,rhs), false)
   }
   
-  public static func subtractWithOverflow(lhs: LInt, _ rhs: LInt)
+  public static func subtractWithOverflow(_ lhs: LInt, _ rhs: LInt)
       -> (LInt, overflow: Bool) {
     return (subtract(lhs,rhs), false)
   }
   
-  public static func multiplyWithOverflow(lhs: LInt, _ rhs: LInt)
+  public static func multiplyWithOverflow(_ lhs: LInt, _ rhs: LInt)
       -> (LInt, overflow: Bool) {
     return (multiply(lhs,rhs), false)
   }
   
-  public static func divideWithOverflow(lhs: LInt, _ rhs: LInt)
+  public static func divideWithOverflow(_ lhs: LInt, _ rhs: LInt)
       -> (LInt, overflow: Bool) {
     return (divide(lhs,rhs), false)
   }
   
-  public static func remainderWithOverflow(lhs: LInt, _ rhs: LInt)
+  public static func remainderWithOverflow(_ lhs: LInt, _ rhs: LInt)
       -> (LInt, overflow: Bool) {
     return (mod(lhs,rhs), false)
   }
   
   func toUIntMax() -> UIntMax {
-    return UInt64.max
+    return UIntMax.max
   }
   
   public func toIntMax() -> IntMax {
-    return IntMax(toUIntMax())
+    return IntMax.max
   }
   
   public func successor() -> LInt {
@@ -472,12 +473,12 @@ public struct LInt: LNumberType, SignedIntegerType {
     return self-LInt(1)
   }
   
-  public func distanceTo(other: LInt) -> Int {
+  public func distanceTo(_ other: LInt) -> Int {
     let a = other-self
     return Int(a > LInt(UInt.max) ? UInt.max : a.value[0])
   }
   
-  public func advancedBy(other: Int) -> LInt {
+  public func advancedBy(_ other: Int) -> LInt {
     return self+LInt(other)
   }
 }
